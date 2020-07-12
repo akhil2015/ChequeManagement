@@ -1,9 +1,9 @@
 pragma solidity ^0.4.10;
 
 contract GoldToken {
-    string  public name = "Gold Token";
-    string  public symbol = "Gold";
-    string  public standard = "Gold Token v1.0";
+    string  public name = "GOLD";
+    string  public symbol = "GOLD";
+    string  public standard = "GOLD Token v1.0";
     uint256 public totalSupply;
 
     event Transfer(
@@ -21,7 +21,9 @@ contract GoldToken {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
 
-    function GoldToken (uint256 _initialSupply) public {
+    constructor (uint256 _initialSupply,string _name) public {
+        symbol = _name;
+        name = _name;
         balanceOf[msg.sender] = _initialSupply;
         totalSupply = _initialSupply;
     }
@@ -32,7 +34,7 @@ contract GoldToken {
         balanceOf[msg.sender] -= _value;
         balanceOf[_to] += _value;
 
-        Transfer(msg.sender, _to, _value);
+        emit Transfer(msg.sender, _to, _value);
 
         return true;
     }
@@ -40,7 +42,7 @@ contract GoldToken {
     function approve(address _spender, uint256 _value) public returns (bool success) {
         allowance[msg.sender][_spender] = _value;
 
-        Approval(msg.sender, _spender, _value);
+        emit Approval(msg.sender, _spender, _value);
 
         return true;
     }
@@ -54,7 +56,7 @@ contract GoldToken {
 
         allowance[_from][msg.sender] -= _value;
 
-        Transfer(_from, _to, _value);
+        emit Transfer(_from, _to, _value);
 
         return true;
     }
