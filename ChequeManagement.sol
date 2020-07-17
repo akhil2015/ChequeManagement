@@ -21,7 +21,7 @@ contract ChequeManagement {
     uint256 highestNonce=0;
     mapping(address => bool) public whitelisted;
     mapping(address => bool) public bankers;
-    mapping(uint => bool) usedNonces;
+    mapping(uint => bool) public usedNonces;
     mapping(address => Cheque[]) receivedCheques;
     mapping(address => Cheque[]) sentCheques;
 
@@ -49,8 +49,14 @@ contract ChequeManagement {
     }
     function claimCheque(uint256 index) onlyRegisteredUser public {
         require(!usedNonces[index],"Nonce has already been used");
+        require(cheques[index].receiver==msg.sender,"you are not the receiver");
+        require(!cheques[index].subjectToApproval||(cheques[index].subjectToApproval&&cheques[index].approvalStatus));
         usedNonces[index] = true;
+        cheques[index].claimed=true;
         emit ChequeClaimed();
+    }
+    function checkIfClaimed(uint256 index) public view returns(bool) {
+        return cheques[index].claimed;
     }
     function addUser(address user) onlyBanker public {
         whitelisted[user] = true;
@@ -62,11 +68,11 @@ contract ChequeManagement {
         require(cheques[index].subjectToApproval);
         cheques[index].approvalStatus = true;
     }
-    function retrieveSentCheques() onlyRegisteredUser public returns (Cheque[] memory return_data){
+    function retrieveSentCheques() onlyRegisteredUser public view returns (Cheque[] memory return_data){
         Cheque[] memory sent= sentCheques[msg.sender];
         return_data = sent;
     }
-    function retrieveReceivedCheques() onlyRegisteredUser public returns (Cheque[] memory return_data){
+    function retrieveReceivedCheques() onlyRegisteredUser public view returns (Cheque[] memory return_data){
         Cheque[] memory received= receivedCheques[msg.sender];
         return_data = received;
     }
